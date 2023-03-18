@@ -1,6 +1,6 @@
 var exec = require("child_process").exec;
 const { SerialPort } = require("serialport");
-var time = "Not used yet..";
+var time = "_Not used yet.._";
 
 var portName = process.argv[2]; // get the port name from the command line
 var myPort = new SerialPort({
@@ -10,6 +10,15 @@ var myPort = new SerialPort({
 
 function start() {
   setInterval(() => {
+    var date = new Date();
+    if (
+      date.getHours() == 2 &&
+      date.getMinutes() == 0 &&
+      (date.getSeconds() == 0 || date.getSeconds() == 1)
+    ) {
+      sendData("reset");
+      return;
+    }
     exec("tasklist", function (err, res, stderr) {
       var res = res.split("\n");
       data = [];
@@ -18,21 +27,20 @@ function start() {
         var name = element.split(" ")[0];
         if (name == "firefox.exe" && !found) {
           console.log("FIREFOOX");
-          sendData("");
+          sendData("count");
           found = true;
-          var date = new Date;
+          var date = new Date();
           var hours = date.getHours();
           var minutes = date.getMinutes();
           var ampm = hours >= 12 ? "pm" : "am";
           hours = hours % 12;
           hours = hours ? hours : 12; // the hour '0' should be '12'
           minutes = minutes < 10 ? "0" + minutes : minutes;
-          time = 'Prev: '+ hours + ":" + minutes + " " + ampm;
-          
+          time = "Prev: " + hours + ":" + minutes + " " + ampm;
         }
       });
       if (!found) {
-        sendData(time);
+        sendData("_" + time + "_");
       }
     });
   }, 1000);
